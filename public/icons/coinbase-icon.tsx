@@ -1,5 +1,3 @@
-import React from "react";
-
 const CoinbaseIcon = ({
   height = 40,
   width = 40,

@@ -1,5 +1,3 @@
-import React from "react";
-
 const EthereumIcon = ({
   height = 20,
   width = 20,

@@ -1,5 +1,3 @@
-import React from "react";
-
 const BinanceSmartChainIcon = ({
   height = 20,
   width = 21,

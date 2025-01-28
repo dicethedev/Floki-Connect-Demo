@@ -1,5 +1,3 @@
-import React from "react";
-
 const AvatarIcon = ({
   height = 16,
   width = 16,
