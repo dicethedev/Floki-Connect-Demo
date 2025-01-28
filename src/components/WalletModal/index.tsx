@@ -1,8 +1,8 @@
+import type React from "react";
 import { toast } from "react-toastify";
 import { CloseIcon } from "../../../public/icons";
 import { walletOptions } from "./walletOptions";
-import { Connector } from "wagmi";
-
+import type { Connector } from "wagmi";
 interface WalletModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,79 +18,151 @@ const WalletModal: React.FC<WalletModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const getConnectorForWallet = (walletName: string): Connector | undefined => {
+    switch (walletName.toLowerCase()) {
+      case "metamask":
+        return connectors.find((c) => c.name === "MetaMask");
+      case "coinbase wallet":
+        return connectors.find((c) => c.name === "Coinbase Wallet");
+      case "phantom":
+        return connectors.find((c) => c.name === "Phantom");
+      case "walletconnect":
+        return connectors.find((c) => c.name === "WalletConnect");
+      default:
+        return undefined;
+    }
+  };
+
+  const isWalletInstalled = (walletName: string): boolean => {
+    switch (walletName.toLowerCase()) {
+      case "metamask":
+        return (
+          typeof window !== "undefined" &&
+          typeof window.ethereum !== "undefined" &&
+          window.ethereum.isMetaMask
+        );
+      case "coinbase wallet":
+        return (
+          typeof window !== "undefined" &&
+          typeof window.ethereum !== "undefined" &&
+          window.ethereum.isCoinbaseWallet
+        );
+      case "phantom":
+        return (
+          typeof window !== "undefined" && typeof window.solana !== "undefined"
+        );
+      case "walletconnect":
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const getWalletInstallLink = (walletName: string): string => {
+    switch (walletName.toLowerCase()) {
+      case "metamask":
+        return "https://metamask.io/download/";
+      case "coinbase wallet":
+        return "https://www.coinbase.com/wallet/downloads";
+      case "phantom":
+        return "https://phantom.app/download";
+      default:
+        return "#";
+    }
+  };
+
+  const handleConnect = (
+    connector: Connector | undefined,
+    label: string | undefined
+  ) => {
+    if (!connector) {
+      toast.error(`${label || "Wallet"} is not available.`, {
+        position: "top-left",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    if (!isWalletInstalled(label || "")) {
+      const installLink = getWalletInstallLink(label || "");
+      toast.error(
+        <div>
+          {label} is not installed.{" "}
+          <a
+            href={installLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            Click here to install
+          </a>
+        </div>,
+        {
+          position: "top-left",
+          autoClose: 5000,
+        }
+      );
+      return;
+    }
+
+    try {
+      onConnect(connector);
+      onClose();
+    } catch (error: unknown) {
+      console.error("Connection error:", error);
+      toast.error("Connection failed. Please try again.", {
+        position: "top-left",
+        autoClose: 3000,
+      });
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50"
       role="dialog"
-      aria-hidden={!isOpen}
+      aria-modal="true"
+      aria-labelledby="modal-title"
     >
-      <div
-        className="bg-[#131313] rounded-[24px] shadow-lg w-full max-w-md duration-300"
-        aria-labelledby="modal-title"
-      >
-        {/* ------ Header ------ */}
+      <div className="bg-[#131313] rounded-[24px] shadow-lg w-full max-w-md duration-300">
         <div className="flex justify-between items-center p-[16px_16px_16px_20px]">
           <h2 id="modal-title" className="text-sm text-white font-medium">
             Connect Wallet
           </h2>
           <button
             onClick={onClose}
-            className="cursor-pointer"
+            className="cursor-pointer text-white hover:text-gray-300 transition-colors"
             aria-label="Close Modal"
           >
             <CloseIcon />
           </button>
         </div>
 
-        {/* --------- Wallet Options ----------- */}
         <div className="flex flex-col gap-[8px] p-[8px_24px_24px_24px]">
-          {connectors.length === 0 ? (
-            <p className="text-center text-white">
-              No wallet connectors available.
-            </p>
-          ) : (
-            walletOptions.map(({ label, icon }, i) => {
-              let connector;
-              switch (label) {
-                case "MetaMask":
-                  connector = connectors[1]; // Metamask Wallet connector
-                  break;
-                case "Coinbase Wallet":
-                  connector = connectors[2]; // Coinbase Wallet connector
-                  break;
-                case "Phantom":
-                  connector = connectors[3]; // Phantom connector
-                  break;
-                case "WalletConnect":
-                  connector = connectors[4]; // WalletConnect connector
-                  break;
-                default:
-                  connector = connectors[0]; // Fallback to Injected Wallet on the browser
-              }
-
-              return (
-                <button
-                  key={i}
-                  className="flex items-center justify-start w-full h-[56px] p-4 bg-[#1B1B1B] text-white gap-4 rounded-lg cursor-pointer transition-transform duration-200 transform hover:scale-[1.02]"
-                  onClick={() => {
-                    try {
-                      onConnect(connector);
-                      onClose();
-                    } catch (error: unknown) {
-                      toast.error("Connection failed. Please try again.", {
-                        position: "top-left",
-                        autoClose: 2000,
-                      });
-                    }
-                  }}
-                  aria-label={`Connect with ${label}`}
-                >
-                  {icon}
-                  <span className="font-medium">{label}</span>
-                </button>
-              );
-            })
-          )}
+          {walletOptions.map(({ label, icon }, index) => {
+            const connector = getConnectorForWallet(label || "");
+            const isInstalled = isWalletInstalled(label || "");
+            return (
+              <button
+                key={index}
+                className={`flex items-center justify-start w-full h-[56px] p-4 bg-[#1B1B1B] text-white gap-4 rounded-lg cursor-pointer transition-transform duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  !isInstalled ? "opacity-50" : ""
+                }`}
+                onClick={() =>
+                  handleConnect(connector, label || "Default Wallet")
+                }
+                aria-label={`Connect with ${label}`}
+              >
+                {icon}
+                <span className="font-medium">{label}</span>
+                {!isInstalled && (
+                  <span className="ml-auto text-xs text-yellow-500">
+                    Not installed
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

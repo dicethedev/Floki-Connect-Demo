@@ -1,3 +1,39 @@
+## Description
+
+A user interface for wallet connection and interaction using the wagmi library. The application should allow users to connect their cryptocurrency wallet, interact with it, and display relevant wallet information but for Floki.
+
+## How to Start the Application
+
+### NB: I recommend using `yarn`
+
+1. **Install Dependencies**  
+   Ensure you have [Node.js](https://nodejs.org/) installed (v16+ is recommended).  
+   Run the following command to install the project dependencies:
+
+   ```bash
+   npm install
+   Or, if you use Yarn:
+    yarn install
+   ```
+
+2. **Run the Development Server**
+   Start the development server with the following command:
+
+   ```bash
+   Or, if you use Yarn:
+   yarn dev
+   ```
+
+3. Access the Application
+
+   Once the server starts, open your browser and navigate to:
+
+   ```arduino
+    http://localhost:5173
+   ```
+
+   You should see the application running!
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -18,11 +54,11 @@ export default tseslint.config({
   languageOptions: {
     // other options...
     parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
       tsconfigRootDir: import.meta.dirname,
     },
   },
-})
+});
 ```
 
 - Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
@@ -31,11 +67,11 @@ export default tseslint.config({
 
 ```js
 // eslint.config.js
-import react from 'eslint-plugin-react'
+import react from "eslint-plugin-react";
 
 export default tseslint.config({
   // Set the react version
-  settings: { react: { version: '18.3' } },
+  settings: { react: { version: "18.3" } },
   plugins: {
     // Add the react plugin
     react,
@@ -44,7 +80,7 @@ export default tseslint.config({
     // other rules...
     // Enable its recommended rules
     ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
+    ...react.configs["jsx-runtime"].rules,
   },
-})
+});
 ```

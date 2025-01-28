@@ -7,7 +7,7 @@ import {
 } from "../../../public/icons";
 
 interface WalletOption {
-  label?: string;
+  label?: string | undefined;
   icon?: ReactNode;
 }
 

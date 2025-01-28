@@ -1,30 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import WalletModal from "./components/WalletModal";
 import NetworkSwitcher from "./components/NetworkSwitcher";
 import { useConnect, useAccount, Connector } from "wagmi";
 import { toast } from "react-toastify";
 
-type ConnectionStatus = "loading" | "error" | "connected" | "disconnected";
+type ConnectionStatus = "idle" | "connecting" | "connected" | "error";
 
 function App() {
   const { connectAsync, connectors } = useConnect();
   const { address, isConnected } = useAccount();
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [connectionStatus, setConnectionStatus] =
-    useState<ConnectionStatus>("disconnected");
+    useState<ConnectionStatus>("idle");
 
-  const handleConnect = async (connector: Connector) => {
-    setConnectionStatus("loading");
-    try {
-      await connectAsync({ connector });
+  useEffect(() => {
+    if (isConnected && connectionStatus === "connecting") {
       setConnectionStatus("connected");
       setModalOpen(false);
-
       toast.success("Wallet connected successfully!", {
         position: "top-left",
         autoClose: 2000,
       });
+    }
+  }, [isConnected, connectionStatus]);
+
+  const handleConnect = async (connector: Connector) => {
+    try {
+      setConnectionStatus("connecting");
+      await connectAsync({ connector });
+      // The modal will be closed in the useEffect when isConnected becomes true
     } catch (err) {
       console.error("Error connecting:", err);
       setConnectionStatus("error");
@@ -32,6 +37,13 @@ function App() {
         position: "top-left",
         autoClose: 2000,
       });
+    }
+  };
+
+  const handleModalClose = () => {
+    if (connectionStatus !== "connecting") {
+      setModalOpen(false);
+      setConnectionStatus("idle");
     }
   };
 
@@ -56,8 +68,8 @@ function App() {
       {/* --------- Connect Wallet Modal options ----------- */}
       <WalletModal
         isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
-        onConnect={handleConnect} // Pass the connection handler
+        onClose={handleModalClose}
+        onConnect={handleConnect}
         connectors={connectors}
       />
     </>

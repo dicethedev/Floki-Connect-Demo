@@ -6,7 +6,6 @@ import {
   walletConnect,
   coinbaseWallet,
 } from "wagmi/connectors";
-// import { PhantomConnector } from "phantom-wagmi-connector";
 
 export const WALLETCONNECT_PROJECT_ID =
   import.meta.env.WALLETCONNECT_PROJECT_ID ?? "test";
@@ -15,14 +14,21 @@ if (!WALLETCONNECT_PROJECT_ID) {
   console.warn("You need to provide a WALLETCONNECT_PROJECT_ID env variable");
 }
 
+const chains = [mainnet, bsc] as const;
+
 export const walletConfig = createConfig({
-  chains: [mainnet, bsc],
+  chains,
   connectors: [
-    injected(),
     metaMask(),
     coinbaseWallet(),
-    // new PhantomConnector({ chains }),
-    walletConnect({ projectId: WALLETCONNECT_PROJECT_ID, showQrModal: true }),
+    injected({ shimDisconnect: true, target: "phantom" }),
+    walletConnect({
+      projectId: WALLETCONNECT_PROJECT_ID,
+      qrModalOptions: {
+        themeMode: "dark",
+      },
+      showQrModal: true,
+    }),
   ],
   transports: {
     [mainnet.id]: http(),

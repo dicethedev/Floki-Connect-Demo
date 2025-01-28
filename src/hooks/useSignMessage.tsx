@@ -23,7 +23,8 @@ const useSignMessage = (): UseSignMessageReturn => {
       const signature: SignMessageReturnType = await signMessage(walletConfig, {
         message,
       });
-      toast.success(`Message signed successfully: ${signature}`, {
+      // console.log("Error signing message:", signature);
+      toast.success(`Message signed successfully`, {
         position: "top-left",
         autoClose: 3000,
       });
