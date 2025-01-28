@@ -8,7 +8,7 @@ import {
 } from "wagmi/connectors";
 
 export const WALLETCONNECT_PROJECT_ID =
-  import.meta.env.WALLETCONNECT_PROJECT_ID ?? "test";
+  import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? "test";
 
 if (!WALLETCONNECT_PROJECT_ID) {
   console.warn("You need to provide a WALLETCONNECT_PROJECT_ID env variable");
@@ -20,7 +20,7 @@ export const walletConfig = createConfig({
   chains,
   connectors: [
     metaMask(),
-    coinbaseWallet(),
+    coinbaseWallet({ preference: "all" }),
     injected({ shimDisconnect: true, target: "phantom" }),
     walletConnect({
       projectId: WALLETCONNECT_PROJECT_ID,
