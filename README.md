@@ -1,6 +1,8 @@
 ## Description
 
-A user interface for wallet connection and interaction using the wagmi library. The application should allow users to connect their cryptocurrency wallet, interact with it, and display relevant wallet information but for Floki.
+Floki Wallet Interface
+
+This project is a user interface designed for wallet connection and interaction using the wagmi library. The application enables Floki users to connect their cryptocurrency wallet, interact with it, and display relevant wallet information.
 
 ## How to Start the Application
 
