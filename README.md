@@ -6,8 +6,6 @@ This project is a user interface designed for wallet connection and interaction 
 
 ## How to Start the Application
 
-### NB: I recommend using `yarn`
-
 1. **Install Dependencies**  
    Ensure you have [Node.js](https://nodejs.org/) installed (v16+ is recommended).  
    Run the following command to install the project dependencies:
