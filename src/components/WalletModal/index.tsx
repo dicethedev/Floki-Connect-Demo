@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { CloseIcon } from "../../../public/icons";
 import { walletOptions } from "./walletOptions";
 import type { Connector } from "wagmi";
+import { useModalDismiss } from "../../hooks/useModalDismiss";
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ const WalletModal: React.FC<WalletModalProps> = ({
   onConnect,
   connectors,
 }) => {
+  const modalRef = useModalDismiss<HTMLDivElement>(onClose);
+
   if (!isOpen) return null;
 
   const getConnectorForWallet = (walletName: string): Connector | undefined => {
@@ -138,7 +141,10 @@ const WalletModal: React.FC<WalletModalProps> = ({
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div className="bg-[#131313] rounded-[24px] shadow-lg w-full max-w-md duration-300">
+      <div
+        ref={modalRef}
+        className="bg-[#131313] rounded-[24px] shadow-lg w-full max-w-md duration-300"
+      >
         <div className="flex justify-between items-center p-[16px_16px_16px_20px]">
           <h2 id="modal-title" className="text-sm text-white font-medium">
             Connect Wallet
