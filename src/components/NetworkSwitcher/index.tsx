@@ -18,8 +18,14 @@ interface WalletProps {
 
 const NetworkSwitcher: React.FC<WalletProps> = ({ walletAddress }) => {
   const { chainId } = useAccount();
-  const { disconnectWallet, signMessage, isSigning, disconnecting } =
-    useWallet();
+  const {
+    disconnectWallet,
+    signMessage,
+    isSigning,
+    disconnecting,
+    hasSignedMessage,
+    resetSignatureState,
+  } = useWallet();
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkProps>(
     networks[0]
   );
@@ -84,15 +90,29 @@ const NetworkSwitcher: React.FC<WalletProps> = ({ walletAddress }) => {
   };
 
   const handleSignMessageBTN = async () => {
+    if (hasSignedMessage) {
+      const confirmResign = window.confirm(
+        "You have already signed a message. Would you like to sign again? This is typically only needed if there was an issue with the previous signature."
+      );
+      if (!confirmResign) {
+        return;
+      }
+
+      resetSignatureState();
+    }
+
     try {
       await signMessage();
-      toast.success("Message signed successfully!", {
-        autoClose: 2000
-      });
     } catch (error: unknown) {
-      toast.error("Failed to sign message. Please try again.", {
-        autoClose: 2000,
-      });
+      if (error instanceof Error) {
+        toast.error(`Failed to sign message: ${error.message}`, {
+          autoClose: 3000,
+        });
+      } else {
+        toast.error("Failed to sign message. Please try again.", {
+          autoClose: 3000,
+        });
+      }
     }
   };
 

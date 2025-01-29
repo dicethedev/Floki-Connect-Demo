@@ -30,12 +30,6 @@ export const walletConfig = createConfig({
         themeMode: "dark",
       },
       showQrModal: true,
-      metadata: {
-        name: "Floki connect demo",
-        description: "Floki connect demo application",
-        url: "https://your-website.com",
-        icons: ["https://your-website.com/icon.png"],
-      },
     }),
   ],
   transports: {

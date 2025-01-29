@@ -11,6 +11,7 @@ interface WalletContextType {
   disconnecting: boolean;
   disconnectWallet: () => Promise<void>;
   signMessage: () => Promise<void>;
+  resetSignatureState: () => void;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -23,6 +24,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
   const { sign, isSigning } = useSignMessage();
   const [hasSignedMessage, setHasSignedMessage] = useState<boolean>(false);
   const [disconnecting, setDisconnecting] = useState<boolean>(false);
+
+  const resetSignatureState = () => {
+    setHasSignedMessage(false);
+  };
 
   const signMessage = async () => {
     if (hasSignedMessage) return;
@@ -79,6 +84,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
         signMessage,
         isSigning,
         disconnecting,
+        resetSignatureState,
       }}
     >
       {children}
