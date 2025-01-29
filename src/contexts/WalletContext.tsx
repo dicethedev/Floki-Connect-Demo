@@ -27,7 +27,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
   const signMessage = async () => {
     if (hasSignedMessage) return;
 
-    const message = "Sign this message to confirm your action";
+    const message =
+      "Sign this message to prove you own this wallet and proceed.";
     try {
       await sign(message);
       setHasSignedMessage(true);

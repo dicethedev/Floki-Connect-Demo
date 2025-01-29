@@ -18,7 +18,7 @@ const useSignMessage = (): UseSignMessageReturn => {
   const sign = async (
     message: string
   ): Promise<SignMessageReturnType | void> => {
-    setIsSigning(true); // Start the loading state
+    setIsSigning(true);
     try {
       const signature: SignMessageReturnType = await signMessage(walletConfig, {
         message,
@@ -41,7 +41,7 @@ const useSignMessage = (): UseSignMessageReturn => {
         autoClose: 3000,
       });
     } finally {
-      setIsSigning(false); // End the loading state
+      setIsSigning(false);
     }
   };
 

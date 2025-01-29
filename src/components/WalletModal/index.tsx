@@ -3,10 +3,11 @@ import { toast } from "react-toastify";
 import { CloseIcon } from "../../../public/icons";
 import { walletOptions } from "./walletOptions";
 import type { Connector } from "wagmi";
+
 interface WalletModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConnect: (connector: Connector) => void;
+  onConnect: (connector: Connector) => Promise<void>;
   connectors: readonly Connector[];
 }
 
@@ -27,7 +28,9 @@ const WalletModal: React.FC<WalletModalProps> = ({
       case "phantom":
         return connectors.find((c) => c.name === "Phantom");
       case "walletconnect":
-        return connectors.find((c) => c.name === "WalletConnect");
+        return connectors.find((c) =>
+          c.name.toLowerCase().includes("walletconnect")
+        );
       default:
         return undefined;
     }
@@ -52,7 +55,9 @@ const WalletModal: React.FC<WalletModalProps> = ({
           typeof window !== "undefined" && typeof window.solana !== "undefined"
         );
       case "walletconnect":
-        return true;
+        return connectors.some((c) =>
+          c.name.toLowerCase().includes("walletconnect")
+        );
       default:
         return false;
     }
@@ -71,10 +76,12 @@ const WalletModal: React.FC<WalletModalProps> = ({
     }
   };
 
-  const handleConnect = (
+  const handleConnect = async (
     connector: Connector | undefined,
     label: string | undefined
   ) => {
+    console.log("Attempting to connect with:", label, connector);
+
     if (!connector) {
       toast.error(`${label || "Wallet"} is not available.`, {
         position: "top-left",
@@ -106,14 +113,21 @@ const WalletModal: React.FC<WalletModalProps> = ({
     }
 
     try {
-      onConnect(connector);
+      await onConnect(connector);
       onClose();
     } catch (error: unknown) {
       console.error("Connection error:", error);
-      toast.error("Connection failed. Please try again.", {
-        position: "top-left",
-        autoClose: 3000,
-      });
+      if (error instanceof Error) {
+        toast.error(`Connection failed: ${error.message}`, {
+          position: "top-left",
+          autoClose: 5000,
+        });
+      } else {
+        toast.error("Connection failed. Please try again.", {
+          position: "top-left",
+          autoClose: 3000,
+        });
+      }
     }
   };
 
@@ -148,9 +162,7 @@ const WalletModal: React.FC<WalletModalProps> = ({
                 className={`flex items-center justify-start w-full h-[56px] p-4 bg-[#1B1B1B] text-white gap-4 rounded-lg cursor-pointer transition-transform duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   !isInstalled ? "opacity-50" : ""
                 }`}
-                onClick={() =>
-                  handleConnect(connector, label || "Default Wallet")
-                }
+                onClick={() => handleConnect(connector, label)}
                 aria-label={`Connect with ${label}`}
               >
                 {icon}
