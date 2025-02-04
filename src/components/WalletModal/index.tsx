@@ -4,6 +4,11 @@ import { CloseIcon } from "../../../public/icons";
 import { walletOptions } from "./walletOptions";
 import type { Connector } from "wagmi";
 import { useModalDismiss } from "../../hooks/useModalDismiss";
+import {
+  getConnectorForWallet,
+  isWalletInstalled,
+  getWalletInstallLink,
+} from "../../utils/walletUtils";
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -21,63 +26,6 @@ const WalletModal: React.FC<WalletModalProps> = ({
   const modalRef = useModalDismiss<HTMLDivElement>(onClose);
 
   if (!isOpen) return null;
-
-  const getConnectorForWallet = (walletName: string): Connector | undefined => {
-    switch (walletName.toLowerCase()) {
-      case "metamask":
-        return connectors.find((c) => c.name === "MetaMask");
-      case "coinbase wallet":
-        return connectors.find((c) => c.name === "Coinbase Wallet");
-      case "phantom":
-        return connectors.find((c) => c.name === "Phantom");
-      case "walletconnect":
-        return connectors.find((c) =>
-          c.name.toLowerCase().includes("walletconnect")
-        );
-      default:
-        return undefined;
-    }
-  };
-
-  const isWalletInstalled = (walletName: string): boolean => {
-    switch (walletName.toLowerCase()) {
-      case "metamask":
-        return (
-          typeof window !== "undefined" &&
-          typeof window.ethereum !== "undefined" &&
-          window.ethereum.isMetaMask
-        );
-      case "coinbase wallet":
-        return (
-          typeof window !== "undefined" &&
-          typeof window.ethereum !== "undefined" &&
-          window.ethereum.isCoinbaseWallet
-        );
-      case "phantom":
-        return (
-          typeof window !== "undefined" && typeof window.solana !== "undefined"
-        );
-      case "walletconnect":
-        return connectors.some((c) =>
-          c.name.toLowerCase().includes("walletconnect")
-        );
-      default:
-        return false;
-    }
-  };
-
-  const getWalletInstallLink = (walletName: string): string => {
-    switch (walletName.toLowerCase()) {
-      case "metamask":
-        return "https://metamask.io/download/";
-      case "coinbase wallet":
-        return "https://www.coinbase.com/wallet/downloads";
-      case "phantom":
-        return "https://phantom.app/download";
-      default:
-        return "#";
-    }
-  };
 
   const handleConnect = async (
     connector: Connector | undefined,
@@ -160,7 +108,7 @@ const WalletModal: React.FC<WalletModalProps> = ({
 
         <div className="flex flex-col gap-[8px] p-[8px_24px_24px_24px]">
           {walletOptions.map(({ label, icon }, index) => {
-            const connector = getConnectorForWallet(label || "");
+            const connector = getConnectorForWallet(label || "", connectors);
             const isInstalled = isWalletInstalled(label || "");
             return (
               <button

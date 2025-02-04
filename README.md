@@ -20,6 +20,7 @@ This project is a user interface designed for wallet connection and interaction 
    Start the development server with the following command:
 
    ```bash
+   npm run dev
    Or, if you use Yarn:
    yarn dev
    ```

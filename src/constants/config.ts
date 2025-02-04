@@ -14,7 +14,7 @@ if (!WALLETCONNECT_PROJECT_ID) {
   console.warn("You need to provide a WALLETCONNECT_PROJECT_ID env variable");
 }
 
-console.log("WalletConnect Project ID:", WALLETCONNECT_PROJECT_ID);
+// console.log("WalletConnect Project ID:", WALLETCONNECT_PROJECT_ID);
 
 const chains = [mainnet, bsc] as const;
 
@@ -26,10 +26,12 @@ export const walletConfig = createConfig({
     injected({ shimDisconnect: true }),
     walletConnect({
       projectId: WALLETCONNECT_PROJECT_ID,
-      qrModalOptions: {
-        themeMode: "dark",
-      },
       showQrModal: true,
+      qrModalOptions: {
+        themeVariables: {
+          "--wcm-z-index": "9999",
+        },
+      },
     }),
   ],
   transports: {

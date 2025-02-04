@@ -1,49 +1,46 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import WalletModal from "./components/WalletModal";
-import NetworkSwitcher from "./components/NetworkSwitcher";
+import WalletInfo from "./components/WalletInfo";
 import { useConnect, useAccount, Connector } from "wagmi";
 import { toast } from "react-toastify";
 
-type ConnectionStatus = "idle" | "connecting" | "connected" | "error";
-
 function App() {
-  const { connectAsync, connectors } = useConnect();
-  const { address, isConnected } = useAccount();
+  const { connectAsync, connectors, isPending, isSuccess, isError } =
+    useConnect();
+  const { isConnected } = useAccount();
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
-  const [connectionStatus, setConnectionStatus] =
-    useState<ConnectionStatus>("idle");
 
   useEffect(() => {
-    if (isConnected && connectionStatus === "connecting") {
-      setConnectionStatus("connected");
+    if (isConnected && isSuccess) {
       setModalOpen(false);
       toast.success("Wallet connected successfully!", {
         position: "top-left",
         autoClose: 2000,
       });
     }
-  }, [isConnected, connectionStatus]);
+  }, [isConnected, isSuccess]);
 
-  const handleConnect = async (connector: Connector) => {
-    try {
-      setConnectionStatus("connecting");
-      await connectAsync({ connector });
-      // The modal will be closed in the useEffect when isConnected becomes true
-    } catch (err) {
-      console.error("Error connecting:", err);
-      setConnectionStatus("error");
+  useEffect(() => {
+    if (isError) {
       toast.error("Failed to connect. Please try again.", {
         position: "top-left",
         autoClose: 2000,
       });
     }
+  }, [isError]);
+
+  const handleConnect = async (connector: Connector) => {
+    try {
+      await connectAsync({ connector });
+    } catch (err) {
+      console.error("Error connecting:", err);
+    }
   };
 
   const handleModalClose = () => {
-    if (connectionStatus !== "connecting") {
+    if (!isPending) {
       setModalOpen(false);
-      setConnectionStatus("idle");
     }
   };
 
@@ -58,10 +55,10 @@ function App() {
             aria-expanded={isModalOpen ? "true" : "false"}
             aria-label="Open Wallet Connection Modal"
           >
-            Connect Wallet
+            {isPending ? "Connecting..." : "Connect Wallet"}
           </button>
         ) : (
-          <NetworkSwitcher walletAddress={address} />
+          <WalletInfo />
         )}
       </div>
 
