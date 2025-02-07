@@ -1,8 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { useAccount, useDisconnect } from "wagmi";
 import useSignMessage from "../hooks/useSignMessage";
 import { toast } from "react-toastify";
 
+/**
+ * Interface defining the shape of the WalletContext
+ */
 interface WalletContextType {
   address: `0x${string}` | undefined;
   isConnected: boolean;
@@ -16,6 +25,12 @@ interface WalletContextType {
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
+/**
+ * WalletProvider Component
+ *
+ * This component provides wallet-related functionality to its children components.
+ * It manages wallet connection, message signing, and disconnection processes.
+ */
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -25,12 +40,15 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
   const [hasSignedMessage, setHasSignedMessage] = useState<boolean>(false);
   const [disconnecting, setDisconnecting] = useState<boolean>(false);
 
+  //****Reset the signature state
   const resetSignatureState = () => {
     setHasSignedMessage(false);
   };
 
-  const signMessage = async () => {
-    if (hasSignedMessage) return;
+  //****Sign a message to prove wallet ownership
+  const signMessage = useCallback(async () => {
+    // Preventing duplicate sign requests if already signed or signing is in progress.
+    if (hasSignedMessage || isSigning) return;
 
     const message =
       "Sign this message to prove you own this wallet and proceed.";
@@ -44,8 +62,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
         autoClose: 3000,
       });
     }
-  };
+  }, [hasSignedMessage, isSigning, sign]);
 
+  //****Disconnect the wallet
   const disconnectWallet = async () => {
     if (disconnecting) return;
     setDisconnecting(true);
@@ -72,7 +91,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
     if (isConnected && !hasSignedMessage) {
       signMessage();
     }
-  }, [isConnected, hasSignedMessage]);
+  }, [isConnected, hasSignedMessage, signMessage]);
 
   return (
     <WalletContext.Provider
@@ -92,6 +111,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+/**
+ * Custom hook to use the wallet context
+ *
+ * @throws {Error} If used outside of a WalletProvider
+ * @returns {WalletContextType} The wallet context
+ */
 export const useWallet = () => {
   const context = useContext(WalletContext);
   if (context === undefined) {

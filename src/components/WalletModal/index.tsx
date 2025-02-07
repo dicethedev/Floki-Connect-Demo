@@ -17,22 +17,46 @@ interface WalletModalProps {
   connectors: readonly Connector[];
 }
 
+/**
+ * WalletModal Component
+ *
+ * This component renders a modal dialog that displays various wallet options for users to connect.
+ * It handles:
+ * - Dismissing the modal when clicking outside (using `useModalDismiss`).
+ * - Checking if a selected wallet is installed.
+ * - Providing an installation link if the wallet is not installed.
+ * - Initiating the connection process via the provided onConnect callback.
+ *
+ * @param {WalletModalProps} props - The properties for the WalletModal component.
+ * @returns {React.ReactElement | null} The modal element if open, otherwise null.
+ */
 const WalletModal: React.FC<WalletModalProps> = ({
   isOpen,
   onClose,
   onConnect,
   connectors,
 }) => {
+  // Hook to automatically dismiss the modal when clicking outside or pressing escape.
   const modalRef = useModalDismiss<HTMLDivElement>(onClose);
 
   if (!isOpen) return null;
 
+  /**
+   * Handles the connection process for a given wallet.
+   *
+   * This function performs the following steps:
+   * 1. Checks if a valid connector is available; if not, displays an error toast.
+   * 2. Checks if the wallet is installed; if not, displays an error toast with an installation link.
+   * 3. Attempts to connect using the provided onConnect callback.
+   * 4. Closes the modal on a successful connection or displays an error toast on failure.
+   *
+   * @param {Connector | undefined} connector - The wallet connector.
+   * @param {string | undefined} label - The label/name of the wallet.
+   */
   const handleConnect = async (
     connector: Connector | undefined,
     label: string | undefined
   ) => {
-    console.log("Attempting to connect with:", label, connector);
-
     if (!connector) {
       toast.error(`${label || "Wallet"} is not available.`, {
         position: "top-left",
@@ -108,7 +132,9 @@ const WalletModal: React.FC<WalletModalProps> = ({
 
         <div className="flex flex-col gap-[8px] p-[8px_24px_24px_24px]">
           {walletOptions.map(({ label, icon }, index) => {
+            // Retrieve the connector corresponding to this wallet option.
             const connector = getConnectorForWallet(label || "", connectors);
+            // Check if the wallet is installed.
             const isInstalled = isWalletInstalled(label || "");
             return (
               <button

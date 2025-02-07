@@ -1,6 +1,18 @@
 import type { Connector } from "wagmi";
 
-//****Function to get a connector by wallet name
+/**
+ * Get a connector by wallet name
+ *
+ * This function finds and returns the appropriate connector for a given wallet name.
+ *
+ * @param {string} walletName - The name of the wallet to find a connector for
+ * @param {readonly Connector[]} connectors - An array of available connectors
+ * @returns {Connector | undefined} The matching connector, or undefined if not found
+ *
+ * @example
+ * const connectors = [metamaskConnector, coinbaseWalletConnector, ...];
+ * const metamaskConnector = getConnectorForWallet('MetaMask', connectors);
+ */
 export const getConnectorForWallet = (
   walletName: string,
   connectors: readonly Connector[]
@@ -19,34 +31,55 @@ export const getConnectorForWallet = (
   }
 };
 
-//****Function to check if a wallet is installed
+/**
+ * Check if a wallet is installed
+ *
+ * This function checks whether a specific wallet is installed in the user's browser.
+ *
+ * @param {string} walletName - The name of the wallet to check
+ * @returns {boolean} True if the wallet is installed, false otherwise
+ *
+ * @example
+ * if (isWalletInstalled('MetaMask')) {
+ *   console.log('MetaMask is installed');
+ * }
+ */
 export const isWalletInstalled = (walletName: string): boolean => {
+  // Ensure we're in a browser environment
+  if (typeof window === "undefined") return false;
+
   switch (walletName.toLowerCase()) {
     case "metamask":
       return (
-        typeof window !== "undefined" &&
-        typeof window.ethereum !== "undefined" &&
-        window.ethereum.isMetaMask
+        typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask
       );
     case "coinbase wallet":
       return (
-        typeof window !== "undefined" &&
         typeof window.ethereum !== "undefined" &&
         window.ethereum.isCoinbaseWallet
       );
     case "phantom":
-      return (
-        typeof window !== "undefined" && typeof window.solana !== "undefined"
-      );
+      return typeof window.solana !== "undefined";
     case "walletconnect":
-      // WalletConnect uses a QR code so it will return true
+      // WalletConnect uses a QR code so it's always considered "installed"
       return true;
     default:
       return false;
   }
 };
 
-//****Function to get the wallet installation link
+/**
+ * Get the wallet installation link
+ *
+ * This function returns the installation link for a given wallet.
+ *
+ * @param {string} walletName - The name of the wallet
+ * @returns {string} The installation link for the wallet
+ *
+ * @example
+ * const metamaskLink = getWalletInstallLink('MetaMask');
+ * console.log(`Install MetaMask here: ${metamaskLink}`);
+ */
 export const getWalletInstallLink = (walletName: string): string => {
   switch (walletName.toLowerCase()) {
     case "metamask":
